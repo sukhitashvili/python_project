@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Optional
+from pathlib import Path
+from typing import Dict, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,10 +10,13 @@ from sqlalchemy import create_engine
 from tqdm import tqdm
 
 
-class CSVProcessor(DataFrame):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.y_cols = self.columns[1:]
+class CSVProcessor:
+    def __init__(self, csv_path: Union[str, Path]):
+        self.data = pd.read_csv(csv_path)
+        self.y_cols = self.data.columns[1:]
+
+    def __getitem__(self, item):
+        return self.data[item]
 
     def save_to_sql(self, file_path, suffix, rename_columns: Optional[dict] = None, *args, **kwargs) -> DataFrame:
         """
@@ -27,7 +31,7 @@ class CSVProcessor(DataFrame):
         """
         os.makedirs('/'.join(file_path.split('/')[:-1]), exist_ok=True)
         engine = create_engine(f'sqlite:///{file_path}.db', echo=False)
-        cp_dataframe = self.copy()
+        cp_dataframe = self.data.copy()
         if rename_columns:
             cp_dataframe.rename(columns=rename_columns, inplace=True)
         cp_dataframe.columns = [name.capitalize() + suffix for name in cp_dataframe.columns]
@@ -69,8 +73,8 @@ class CSVProcessor(DataFrame):
 class TrainCSVProcessor(CSVProcessor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.train_cols_to_ideals = dict()  # will be created by self.match_to_ideals function
-        self.max_diffs_dict = dict()  # will be created by find_max_differences_to_mappings function
+        self.train_cols_to_ideals_ = dict()  # will be created by self.match_to_ideals function
+        self.max_diffs_dict_ = dict()  # will be created by find_max_differences_to_mappings function
 
     def match_to_ideals(self, ideals_df: DataFrame) -> Dict:
         """
@@ -116,7 +120,7 @@ class TrainCSVProcessor(CSVProcessor):
         else:
             plt.show()
 
-    def filter_ideals(self, ideals_df: DataFrame) -> DataFrame:
+    def filter_ideals(self, ideals_df: CSVProcessor) -> DataFrame:
         """
         Returns x and Ys which are mapped to the train cols
         Args:
@@ -128,12 +132,12 @@ class TrainCSVProcessor(CSVProcessor):
         estimated_ideals = ideals_df[['x'] + mapped_y_cols]
         return estimated_ideals
 
-    def find_max_differences_to_mappings(self, ideals_df: DataFrame) -> Dict:
+    def find_max_differences_to_mappings(self, ideals_df: CSVProcessor) -> Dict:
         estimated_ideals = self.filter_ideals(ideals_df=ideals_df)
         renamed_ideals = estimated_ideals.rename(
             columns={ideal_y: train_y for train_y, ideal_y in self.train_cols_to_ideals.items()})
         # check is names are matched
-        assert all(renamed_ideals.columns == self.columns), \
+        assert all(renamed_ideals.columns == self.data.columns), \
             "Columns do not match, probably moved or renamed incorrectly!"
 
         diffs_df = (self - renamed_ideals).rename(columns=self.train_cols_to_ideals)
@@ -157,7 +161,7 @@ class TestCSVProcessor(CSVProcessor):
     def assign_to_ideals(self, train_df: TrainCSVProcessor, ideals_df: IdealCSVProcessor):
         estimated_ideals = train_df.filter_ideals(ideals_df=ideals_df)
         # validate='many_to_one' is used as test.csv has duplicated entries in X column
-        merged_ideals_test = pd.merge(self, estimated_ideals, on='x', how='left', validate='many_to_one').rename(
+        merged_ideals_test = pd.merge(self.data, estimated_ideals, on='x', how='left', validate='many_to_one').rename(
             columns={'y': 'test'})
         assert sum(self['x'].values != merged_ideals_test['x'].values) == 0, "X column values do not match!"
 
