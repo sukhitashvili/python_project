@@ -31,7 +31,7 @@ class CSVProcessor:
         """
         os.makedirs('/'.join(file_path.split('/')[:-1]), exist_ok=True)
         engine = create_engine(f'sqlite:///{file_path}.db', echo=False)
-        cp_dataframe = self.data.copy()
+        cp_dataframe = self.data.copy(deep=True)
         if rename_columns:
             cp_dataframe.rename(columns=rename_columns, inplace=True)
         cp_dataframe.columns = [name.capitalize() + suffix for name in cp_dataframe.columns]
@@ -46,10 +46,11 @@ class CSVProcessor:
         )
         return cp_dataframe
 
-    def plot_raw_data(self, save_path: str = '', cols_to_plot: list = []):
+    def plot_raw_data(self, plot_title: str, save_path: str = '', cols_to_plot: list = []):
         """
         Plots raw data
         Args:
+            plot_title: title of the plot
             save_path: path where to save data, if empty then figure will be shown
             cols_to_plot: columns names to plot
 
@@ -57,13 +58,14 @@ class CSVProcessor:
             None
         """
         plt.figure(figsize=(10, 5))
-        plt.title('Train csv')
+        plt.title(plot_title)
         col_names = self.y_cols if len(cols_to_plot) == 0 else cols_to_plot
         for y_col in col_names:
             plt.plot(self['x'], self[y_col], label=y_col.title())
         plt.legend()
 
         if save_path:
+            os.makedirs(save_path, exist_ok=True)
             plt.savefig(save_path)
             plt.close()
         else:
