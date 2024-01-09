@@ -60,12 +60,26 @@ class CSVProcessor:
         plt.figure(figsize=(10, 5))
         plt.title(plot_title)
         col_names = self.y_cols if len(cols_to_plot) == 0 else cols_to_plot
+        # sort values if needed
+        data = None
+        if sort_by:
+            data = self.data.sort_values(by=sort_by)
+        else:
+            data = self.data
+        # plot data
         for y_col in col_names:
-            plt.plot(self['x'], self[y_col], label=y_col.title())
+            plt.plot(data['x'], data[y_col], label=y_col.title())
+        # add legend and x axis label
         plt.legend()
+        plt.xlabel('X Values')
+        self.save_or_show(save_path=save_path)
 
+    @staticmethod
+    def save_or_show(save_path: str = ''):
         if save_path:
             os.makedirs(save_path, exist_ok=True)
+            folder = os.path.dirname(save_path)
+            os.makedirs(folder, exist_ok=True)
             plt.savefig(save_path)
             plt.close()
         else:
