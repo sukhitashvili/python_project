@@ -53,10 +53,9 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     logger.info("Creating database tables...")
     train_processor.save_to_sql(file_path="database/training", suffix=" (training func)")
     ideals_processor.save_to_sql(file_path="database/ideal", suffix=" (ideal func)")
-    # TODO: correct save_to_sql for the test_processor
-    # test_processor.save_to_sql(file_path="database/assigned", suffix="",
-    #                            rename_columns={'x': 'X (test func)', 'test': 'Y (test func)'},
-    #                            chunksize=1)  # chunksize=1 writes line by line
+    test_processor.save_to_sql(file_path="database/assigned", suffix="",
+                               rename_columns={'x': 'X (test func)', 'test': 'Y (test func)'},
+                               chunksize=1)  # chunksize=1 writes line by line
 
     logger.info("Finished creating database tables.")
 

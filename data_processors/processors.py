@@ -19,20 +19,22 @@ class CSVProcessor:
     def __getitem__(self, item):
         return self.data[item]
 
-    def save_to_sql(self, file_path, suffix, rename_columns: Optional[dict] = None, *args, **kwargs) -> DataFrame:
+    def save_to_sql(self, file_path, suffix, rename_columns: Optional[dict] = None, data: Optional[DataFrame] = None,
+                    *args, **kwargs) -> DataFrame:
         """
         Saves dataframes as a SQLite database
         Args:
             file_path: where to save
             suffix: what name to add as suffix
             rename_columns: dict with key of existing col names and values of new column name to rename to
+            data: external dataframe to safe (if provided)
 
         Returns:
             saved dataframe
         """
         os.makedirs('/'.join(file_path.split('/')[:-1]), exist_ok=True)
         engine = create_engine(f'sqlite:///{file_path}.db', echo=False)
-        cp_dataframe = self.data.copy(deep=True)
+        cp_dataframe = data if (data is not None) else self.data.copy(deep=True)
         if rename_columns:
             cp_dataframe.rename(columns=rename_columns, inplace=True)
         cp_dataframe.columns = [name.capitalize() + suffix for name in cp_dataframe.columns]
@@ -184,8 +186,15 @@ class TestCSVProcessor(CSVProcessor):
         super().__init__(*args, **kwargs)
         self.assigned_test_df = None  # fill be created by self.assign_to_ideals
 
-    def save_to_sql(self, file_path, suffix, rename_columns: Optional[dict] = None, *args, **kwargs) -> DataFrame:
-        pass  # TODO: overwrite parent method so that is will save self.assigned_test_df instead of self.data
+    def save_to_sql(self, data: Optional[DataFrame] = None, *args, **kwargs) -> DataFrame:
+        if data is not None:
+            if self.assigned_test_df is None:
+                raise RuntimeError(
+                    "self.assigned_test_df is None, possibly you missed to run self.assign_to_ideals function before"
+                    " self.save_to_sql!")
+
+        data = data if (data is not None) else self.assigned_test_df.copy(deep=True)
+        return super().save_to_sql(data=data, *args, **kwargs)
 
     def assign_to_ideals(self, train_processor: TrainCSVProcessor, ideals_processor: IdealCSVProcessor) -> DataFrame:
         """
