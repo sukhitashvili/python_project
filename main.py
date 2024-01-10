@@ -9,6 +9,7 @@ logging.basicConfig(filename='output.log',
                     filemode='w',  # overwrite logger file for every run
                     format="%(asctime)s :: %(levelname)s: %(message)s")
 logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler())
 
 
 def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
@@ -82,3 +83,6 @@ if __name__ == '__main__':
         main(train_csv_path=args.train_csv_path, ideals_csv_path=args.ideals_csv_path, test_csv_path=args.test_csv_path)
     except Exception as e:
         logger.exception("main crashed. Error: %s", e)
+    else:
+        logger.info("Program finished successfully.")
+
