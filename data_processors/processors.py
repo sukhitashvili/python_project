@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,6 +14,7 @@ class CSVProcessor:
     def __init__(self, csv_path: Union[str, Path]):
         self.data = pd.read_csv(csv_path)
         self.y_cols = self.data.columns[1:]
+        self.figsize = (13, 5)  # let it be statically typed and use for every visualization
 
     def __getitem__(self, item):
         return self.data[item]
@@ -46,7 +47,8 @@ class CSVProcessor:
         )
         return cp_dataframe
 
-    def plot_raw_data(self, plot_title: str, save_path: str = '', cols_to_plot: list = []):
+    def plot_raw_data(self, plot_title: str, save_path: str = '', cols_to_plot: list = [],
+                      sort_by: Optional[str] = None):
         """
         Plots raw data
         Args:
@@ -57,7 +59,7 @@ class CSVProcessor:
         Returns:
             None
         """
-        plt.figure(figsize=(10, 5))
+        plt.figure(figsize=self.figsize)
         plt.title(plot_title)
         col_names = self.y_cols if len(cols_to_plot) == 0 else cols_to_plot
         # sort values if needed
@@ -77,7 +79,6 @@ class CSVProcessor:
     @staticmethod
     def save_or_show(save_path: str = ''):
         if save_path:
-            os.makedirs(save_path, exist_ok=True)
             folder = os.path.dirname(save_path)
             os.makedirs(folder, exist_ok=True)
             plt.savefig(save_path)
@@ -85,12 +86,25 @@ class CSVProcessor:
         else:
             plt.show()
 
+    def plot_multiple_dataframes(self, list_of_dfs: List[DataFrame], cols_to_plot: List[List[str]],
+                                 plot_title: str, save_path: str = ''):
+        plt.figure(figsize=self.figsize)
+        plt.title(plot_title)
+
+        for curr_df, df_cols in zip(list_of_dfs, cols_to_plot):
+            for y_col in df_cols:
+                plt.plot(curr_df['x'], curr_df[y_col], label=y_col.title())
+
+        plt.legend()
+        plt.xlabel('X Values')
+        self.save_or_show(save_path=save_path)
+
 
 class TrainCSVProcessor(CSVProcessor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.train_cols_to_ideals_ = dict()  # will be created by self.match_to_ideals function
-        self.max_diffs_dict_ = dict()  # will be created by find_max_differences_to_mappings function
+        self.max_diffs_dict = dict()  # will be created by find_max_differences_to_mappings function
 
     def match_to_ideals(self, ideals_df: DataFrame) -> Dict:
         """
@@ -113,7 +127,7 @@ class TrainCSVProcessor(CSVProcessor):
         self.train_cols_to_ideals = train_cols_to_ideals
         return self.train_cols_to_ideals
 
-    def vis_mapping_to_ideals(self, ideals_df: DataFrame, save_path: str = ''):
+    def vis_mapping(self, ideals_df: DataFrame, save_path: str = ''):
         """
         Visualizes subset of columns from ideals csv dataframe which were matched to train columns
         Args:
@@ -121,42 +135,38 @@ class TrainCSVProcessor(CSVProcessor):
             save_path:
 
         Returns:
-
+            None
         """
-        plt.figure(figsize=(10, 3))
+        plt.figure(figsize=self.figsize)
         plt.title('Ideals to train')
         for tr_col in self.y_cols:
             plt.plot(self['x'], self[tr_col], label=f'Train {tr_col}')
             plt.plot(ideals_df['x'], ideals_df[self.train_cols_to_ideals[tr_col]],
                      label=f'Ideal {self.train_cols_to_ideals[tr_col]}')
         legend = plt.legend(prop={'size': 10})
-        if save_path:
-            plt.savefig(save_path)
-            plt.close()
-        else:
-            plt.show()
+        self.save_or_show(save_path=save_path)
 
-    def filter_ideals(self, ideals_df: CSVProcessor) -> DataFrame:
+    def filter_ideals(self, ideals_processor: CSVProcessor) -> DataFrame:
         """
         Returns x and Ys which are mapped to the train cols
         Args:
-            ideals_df: ideals csv dataframe
+            ideals_processor: ideals csv dataframe
 
         Returns: None
         """
         mapped_y_cols = list(self.train_cols_to_ideals.values())
-        estimated_ideals = ideals_df[['x'] + mapped_y_cols]
+        estimated_ideals = ideals_processor[['x'] + mapped_y_cols]
         return estimated_ideals
 
-    def find_max_differences_to_mappings(self, ideals_df: CSVProcessor) -> Dict:
-        estimated_ideals = self.filter_ideals(ideals_df=ideals_df)
+    def find_max_differences_to_mappings(self, ideals_processor: CSVProcessor) -> Dict:
+        estimated_ideals = self.filter_ideals(ideals_processor=ideals_processor)
         renamed_ideals = estimated_ideals.rename(
             columns={ideal_y: train_y for train_y, ideal_y in self.train_cols_to_ideals.items()})
         # check is names are matched
         assert all(renamed_ideals.columns == self.data.columns), \
             "Columns do not match, probably moved or renamed incorrectly!"
 
-        diffs_df = (self - renamed_ideals).rename(columns=self.train_cols_to_ideals)
+        diffs_df = (self.data - renamed_ideals).rename(columns=self.train_cols_to_ideals)
         abs_diffs_scaled = abs(diffs_df).max(axis=0) * np.sqrt(2)
         max_diffs = dict(abs_diffs_scaled)
         del max_diffs['x']
@@ -174,21 +184,36 @@ class TestCSVProcessor(CSVProcessor):
         super().__init__(*args, **kwargs)
         self.assigned_test_df = None  # fill be created by self.assign_to_ideals
 
-    def assign_to_ideals(self, train_df: TrainCSVProcessor, ideals_df: IdealCSVProcessor):
-        estimated_ideals = train_df.filter_ideals(ideals_df=ideals_df)
+    def save_to_sql(self, file_path, suffix, rename_columns: Optional[dict] = None, *args, **kwargs) -> DataFrame:
+        pass  # TODO: overwrite parent method so that is will save self.assigned_test_df instead of self.data
+
+    def assign_to_ideals(self, train_processor: TrainCSVProcessor, ideals_processor: IdealCSVProcessor) -> DataFrame:
+        """
+        Assigns x,y point pairs from the test csv to the subset of ideals which were matched with columns of train.
+        So x,y point from test will be assigned to one of the 4 columns from matched ideals.
+        Args:
+            train_processor:  train processor class which acts like a dataframe
+            ideals_processor: ideals processor class which acts like a dataframe
+
+        Returns:
+            test dataframe which contains all the information about assignment:
+                - ideal column index and corresponding value of the ideal point
+                - delta deviation
+        """
+        estimated_ideals = train_processor.filter_ideals(ideals_processor=ideals_processor)
         # validate='many_to_one' is used as test.csv has duplicated entries in X column
         merged_ideals_test = pd.merge(self.data, estimated_ideals, on='x', how='left', validate='many_to_one').rename(
             columns={'y': 'test'})
         assert sum(self['x'].values != merged_ideals_test['x'].values) == 0, "X column values do not match!"
 
         # find the absolute difference
-        mapped_ideals_cols = list(train_df.train_cols_to_ideals.values())
+        mapped_ideals_cols = list(train_processor.train_cols_to_ideals.values())
         subset_ideals = merged_ideals_test[mapped_ideals_cols]
         ideals_test_abs_diff = abs(subset_ideals.sub(merged_ideals_test['test'], axis=0))
 
         # assign test x,y pairs to mapped ideals
-        mapped_ideal_cols = list(train_df.train_cols_to_ideals.values())
-        max_diffs = train_df.max_diffs_dict
+        mapped_ideal_cols = list(train_processor.train_cols_to_ideals.values())
+        max_diffs = train_processor.find_max_differences_to_mappings(ideals_processor=ideals_processor)
 
         merged_ideals_test['No. of ideal func'] = ideals_test_abs_diff.apply(
             lambda row: self.find_closest(row, col_names=mapped_ideal_cols, max_diffs=max_diffs), axis=1)
@@ -208,7 +233,7 @@ class TestCSVProcessor(CSVProcessor):
         # plot test x,y
         test_y = sorted_df['test'].values
         x_values = sorted_df['x'].values
-        plt.figure(figsize=(13, 5))
+        plt.figure(figsize=self.figsize)
         plt.title('Graph of values from test.csv and closes ideals')
         plt.plot(x_values, test_y, label='Test')
 
@@ -227,11 +252,9 @@ class TestCSVProcessor(CSVProcessor):
             x = x + 0.2 if (i % 2 == 0) else x - 0.2
             plt.annotate(txt, (x, y), size=9)
 
-        if save_path:
-            plt.savefig(save_path)
-            plt.close()
-        else:
-            plt.show()
+        legend = plt.legend(prop={'size': 10})
+        plt.xlabel('X Values')
+        self.save_or_show(save_path=save_path)
 
     @staticmethod
     def find_closest(row, col_names: list, max_diffs: dict) -> str:
