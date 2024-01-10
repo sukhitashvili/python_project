@@ -187,13 +187,12 @@ class TestCSVProcessor(CSVProcessor):
         self.assigned_test_df = None  # fill be created by self.assign_to_ideals
 
     def save_to_sql(self, data: Optional[DataFrame] = None, *args, **kwargs) -> DataFrame:
-        if data is not None:
+        if data is None:
             if self.assigned_test_df is None:
                 raise RuntimeError(
                     "self.assigned_test_df is None, possibly you missed to run self.assign_to_ideals function before"
                     " self.save_to_sql!")
-
-        data = data if (data is not None) else self.assigned_test_df.copy(deep=True)
+            data = self.assigned_test_df.copy(deep=True)
         return super().save_to_sql(data=data, *args, **kwargs)
 
     def assign_to_ideals(self, train_processor: TrainCSVProcessor, ideals_processor: IdealCSVProcessor) -> DataFrame:
