@@ -94,6 +94,16 @@ class TestCSVProcessor(CSVProcessor):
         self.assigned_test_df = None  # fill be created by self.assign_to_ideals
 
     def save_to_sql(self, data: Optional[DataFrame] = None, *args, **kwargs) -> DataFrame:
+        """
+        Overwrites super().save_to_sql to save self.assigned_test_df as data by default is data parameter is None.
+        For further documentation see super().save_to_sql
+        Args:
+            data: external dataframe to safe (if provided)
+            *args, **kwargs: passed to super().save_to_sql
+
+        Returns:
+            saved dataframe
+        """
         if data is None:
             if self.assigned_test_df is None:
                 raise RuntimeError(

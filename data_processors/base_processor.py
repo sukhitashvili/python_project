@@ -26,7 +26,7 @@ class CSVProcessor:
             suffix: what name to add as suffix
             rename_columns: dict with key of existing col names and values of new column name to rename to
             data: external dataframe to safe (if provided)
-
+            *args, **kwargs: passed to DataFrame.to_sql
         Returns:
             saved dataframe
         """
