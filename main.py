@@ -56,11 +56,7 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     test_processor.save_to_sql(file_path="database/assigned", suffix="",
                                rename_columns={'x': 'X (test func)', 'test': 'Y (test func)'},
                                chunksize=1)  # chunksize=1 writes line by line
-
     logger.info("Finished creating database tables.")
-
-    # TODO: add test caverage
-
     return 0
 
 
