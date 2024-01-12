@@ -4,7 +4,7 @@ import logging
 from data_processors import TrainCSVProcessor, IdealCSVProcessor, TestCSVProcessor
 
 # create logger
-logging.basicConfig(filename='output.log',
+logging.basicConfig(filename='logs.txt',
                     level=logging.INFO,
                     filemode='w',  # overwrite logger file for every run
                     format="%(asctime)s :: %(levelname)s: %(message)s")
