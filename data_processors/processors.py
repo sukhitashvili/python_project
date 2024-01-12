@@ -109,7 +109,7 @@ class TestCSVProcessor(CSVProcessor):
                 raise RuntimeError(
                     "self.assigned_test_df is None, possibly you missed to run self.assign_to_ideals function before"
                     " self.save_to_sql!")
-            data = self.assigned_test_df.copy(deep=True)
+            data = self.assigned_test_df[['x', 'test', 'Delta Y (test func)', 'No. of ideal func']].copy(deep=True)
         return super().save_to_sql(data=data, *args, **kwargs)
 
     def assign_to_ideals(self, train_processor: TrainCSVProcessor, ideals_processor: IdealCSVProcessor) -> DataFrame:
