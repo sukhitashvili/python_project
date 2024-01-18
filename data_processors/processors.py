@@ -36,18 +36,19 @@ class TrainCSVProcessor(CSVProcessor):
         self.train_cols_to_ideals = train_cols_to_ideals
         return self.train_cols_to_ideals
 
-    def vis_mapping(self, ideals_df: DataFrame, save_path: str = ''):
+    def vis_mapping(self, ideals_df: DataFrame, plot_title: str, save_path: str = ''):
         """
         Visualizes subset of columns from ideals csv dataframe which were matched to train columns
         Args:
             ideals_df: ideals csv dataframe
-            save_path:
+            plot_title: title
+            save_path: where to save the plot
 
         Returns:
             None
         """
         plt.figure(figsize=self.figsize)
-        plt.title('Ideals to train')
+        plt.title(plot_title)
         for tr_col in self.y_cols:
             plt.plot(self['x'], self[tr_col], label=f'Train {tr_col}')
             plt.plot(ideals_df['x'], ideals_df[self.train_cols_to_ideals[tr_col]],
@@ -150,7 +151,7 @@ class TestCSVProcessor(CSVProcessor):
         self.assigned_test_df = merged_ideals_test
         return self.assigned_test_df
 
-    def plot_with_assigned(self, sort_by: str = 'x', save_path: str = ''):
+    def plot_with_assigned(self, plot_title: str, sort_by: str = 'x', save_path: str = ''):
         sorted_df = self.assigned_test_df  # just call it sorted even if it will not be sorted
         if sort_by:
             sorted_df = self.assigned_test_df.sort_values(by=[sort_by])
@@ -159,7 +160,7 @@ class TestCSVProcessor(CSVProcessor):
         test_y = sorted_df['test'].values
         x_values = sorted_df['x'].values
         plt.figure(figsize=self.figsize)
-        plt.title('Graph of values from test.csv and closes ideals')
+        plt.title(plot_title)
         plt.plot(x_values, test_y, label='Test')
 
         #  now plot columns of ideals which were assigned after dropping nans and annotate scatter plot with col names

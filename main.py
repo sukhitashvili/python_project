@@ -39,6 +39,7 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     logger.info("Matching ideals with train csv columns...")
     train_processor.match_to_ideals(ideals_df=ideals_processor.data)
     train_processor.vis_mapping(ideals_df=ideals_processor.data,
+                                plot_title="Ideals to train",
                                 save_path='images/matched_ideals_to_train.jpg')
     logger.info("Finished matching with train.")
 
@@ -46,7 +47,8 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     logger.info("Matching ideals with test x,y pairs...")
     test_processor.assign_to_ideals(train_processor=train_processor, ideals_processor=ideals_processor)
     # Plot test set and estimated closest ideals
-    test_processor.plot_with_assigned(sort_by='x', save_path='images/test_assigned.jpg')
+    test_processor.plot_with_assigned(plot_title="Graph of values from test.csv and closes ideals", sort_by='x',
+                                      save_path='images/test_assigned.jpg')
     logger.info("Finished matching with test")
 
     # Now save the tables into a sqlite db
