@@ -25,7 +25,7 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     train_processor.plot_raw_data(plot_title='Train csv', save_path='images/train_csv.jpg')
     ideals_processor.plot_raw_data(plot_title='Ideals csv (subset of columns)',
                                    save_path='images/ideals_csv.jpg', cols_to_plot=['y10', 'y14', 'y15', 'y42'])
-    test_processor.plot_raw_data(plot_title='Test csv', save_path='images/test_csv.jpg', sort_by='x')
+    test_processor.plot_raw_data(plot_title='Test csv', save_path='images/test_csv.jpg', plot_type='scatter')
 
     # overlay test csv on train plot
     train_processor.plot_multiple_dataframes(list_of_dfs=[train_processor.data,

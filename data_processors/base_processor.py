@@ -48,13 +48,16 @@ class CSVProcessor:
         return cp_dataframe
 
     def plot_raw_data(self, plot_title: str, save_path: str = '', cols_to_plot: list = [],
-                      sort_by: Optional[str] = None):
+                      sort_by: Optional[str] = None, plot_type: str = 'plot'):
         """
         Plots raw data
         Args:
             plot_title: title of the plot
             save_path: path where to save data, if empty then figure will be shown
             cols_to_plot: columns names to plot
+            sort_by: which column values to use for sorting
+            plot_type: string representing what pyplot's function to use
+                       Default to plt.plot
 
         Returns:
             None
@@ -70,7 +73,8 @@ class CSVProcessor:
             data = self.data
         # plot data
         for y_col in col_names:
-            plt.plot(data['x'], data[y_col], label=y_col.title())
+            plot_func = getattr(plt, plot_type)
+            plot_func(data['x'], data[y_col], label=y_col.title())
         # add legend and x axis label
         plt.legend()
         plt.xlabel('X Values')
