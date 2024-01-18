@@ -77,7 +77,9 @@ class CSVProcessor:
             plot_func(data['x'], data[y_col], label=y_col.title())
         # add legend and x axis label
         plt.legend()
-        plt.xlabel('X Values')
+        # plt.xlabel('X Values')
+        plt.gca().spines['top'].set_visible(False)
+        plt.gca().spines['right'].set_visible(False)
         self.save_or_show(save_path=save_path)
 
     @staticmethod
@@ -100,5 +102,7 @@ class CSVProcessor:
                 plt.plot(curr_df['x'], curr_df[y_col], label=y_col.title())
 
         plt.legend()
-        plt.xlabel('X Values')
+        # plt.xlabel('X Values')
+        plt.gca().spines['top'].set_visible(False)
+        plt.gca().spines['right'].set_visible(False)
         self.save_or_show(save_path=save_path)
