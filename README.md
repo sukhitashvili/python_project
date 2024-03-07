@@ -12,8 +12,9 @@ python main.py
 ```
 
 This will generate dataset plots, sqlite database files and logs.txt file in the root folder.
+_But maybe you need to delete them before running as they already exist in the repository_.
 
-To run tests located under `test` module tou need to run:
+To run tests located under `test` module you need to run:
 ```python
 python -m unittest discover -v
 ```
@@ -22,14 +23,14 @@ python -m unittest discover -v
 
 The main logic which runs all the necessary classes/functions is located in `main.py` file.
 After executing `main.py` file, you will see in the console the execution logs about underlying processes, also
-generated `images` and `database` folders and `logs.txt` file which contains the same logs which you will see on the 
+generated `images` and `database` folders and `logs.txt` file which contains the same logs which you will see in the 
 console.
 
 The `images` folder contains generated figures about of the datasets, and `database` folder contains generated sqlite 
 files with the tables requested by assignment description.
 
 The `data_processors` module contains the main classes which process the csv files to do matching between train and 
-ideals csv files and also assign each x,y pairs from the test csv to one of the point from ideals. All this processing
+ideals csv files and also assign each x,y pairs from the test csv to one of the functions from ideals. All this processing
 logic is split between `TrainCSVProcessor`, `IdealCSVProcessor` and `TestCSVProcessor` data processor classes
 and each class contains corresponding functions to execute the logic. The function call of the corresponding functions
 is located in `main.py` as described above.
