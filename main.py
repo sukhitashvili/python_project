@@ -22,7 +22,7 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
 
     # visualize raw datasets
     logger.info("Saving figures of raw data...")
-    train_processor.plot_raw_data(plot_title='', save_path='images/train_csv.jpg')
+    train_processor.plot_raw_data(plot_title='Train CSV', save_path='images/train_csv.jpg')
     ideals_processor.plot_raw_data(plot_title='',
                                    save_path='images/ideals_csv.jpg', cols_to_plot=['y10', 'y14', 'y15', 'y42'])
     test_processor.plot_raw_data(plot_title='', save_path='images/test_csv.jpg', plot_type='scatter')
