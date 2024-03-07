@@ -12,7 +12,7 @@ class CSVProcessor:
     def __init__(self, csv_path: Union[str, Path]):
         self.data = pd.read_csv(csv_path)
         self.y_cols = self.data.columns[1:]
-        self.figsize = (13, 5)  # let it be statically typed and use for every visualization
+        self.figsize = (9, 5)  # let it be statically typed and use for every visualization
 
     def __getitem__(self, item):
         return self.data[item]
