@@ -22,16 +22,17 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
 
     # visualize raw datasets
     logger.info("Saving figures of raw data...")
-    train_processor.plot_raw_data(plot_title='Train csv', save_path='images/train_csv.jpg')
-    ideals_processor.plot_raw_data(plot_title='Ideals csv (subset of columns)',
+    train_processor.plot_raw_data(plot_title='', save_path='images/train_csv.jpg')
+    ideals_processor.plot_raw_data(plot_title='',
                                    save_path='images/ideals_csv.jpg', cols_to_plot=['y10', 'y14', 'y15', 'y42'])
-    test_processor.plot_raw_data(plot_title='Test csv', save_path='images/test_csv.jpg', plot_type='scatter')
+    test_processor.plot_raw_data(plot_title='', save_path='images/test_csv.jpg', plot_type='scatter')
 
     # overlay test csv on train plot
     train_processor.plot_multiple_dataframes(list_of_dfs=[train_processor.data,
                                                           test_processor.data.sort_values(by=['x'])],
                                              cols_to_plot=[train_processor.y_cols, test_processor.y_cols],
-                                             plot_title='Test csv over train csv',
+                                             plot_types=['plot', 'scatter'],
+                                             plot_title='',
                                              save_path='images/train_and_test.jpg')
     logger.info("Finished saving figures.")
 
@@ -39,7 +40,7 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     logger.info("Matching ideals with train csv columns...")
     train_processor.match_to_ideals(ideals_df=ideals_processor.data)
     train_processor.vis_mapping(ideals_df=ideals_processor.data,
-                                plot_title="Ideals to train",
+                                plot_title="",
                                 save_path='images/matched_ideals_to_train.jpg')
     logger.info("Finished matching with train.")
 
@@ -47,7 +48,7 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     logger.info("Matching ideals with test x,y pairs...")
     test_processor.assign_to_ideals(train_processor=train_processor, ideals_processor=ideals_processor)
     # Plot test set and estimated closest ideals
-    test_processor.plot_with_assigned(plot_title="Graph of values from test.csv and closes ideals", sort_by='x',
+    test_processor.plot_with_assigned(plot_title="", sort_by='x',
                                       save_path='images/test_assigned.jpg')
     logger.info("Finished matching with test")
 
