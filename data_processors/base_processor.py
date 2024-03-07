@@ -76,8 +76,8 @@ class CSVProcessor:
             plot_func = getattr(plt, plot_type)
             plot_func(data['x'], data[y_col], label=y_col.title())
         # add legend and x axis label
-        # plt.legend()
-        # plt.xlabel('X Values')
+        plt.legend()
+        plt.xlabel('X Values')
         plt.gca().spines['top'].set_visible(False)
         plt.gca().spines['right'].set_visible(False)
         self.save_or_show(save_path=save_path)
