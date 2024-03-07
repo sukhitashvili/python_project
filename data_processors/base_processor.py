@@ -76,7 +76,7 @@ class CSVProcessor:
             plot_func = getattr(plt, plot_type)
             plot_func(data['x'], data[y_col], label=y_col.title())
         # add legend and x axis label
-        plt.legend()
+        # plt.legend()
         # plt.xlabel('X Values')
         plt.gca().spines['top'].set_visible(False)
         plt.gca().spines['right'].set_visible(False)
@@ -93,13 +93,14 @@ class CSVProcessor:
             plt.show()
 
     def plot_multiple_dataframes(self, list_of_dfs: List[DataFrame], cols_to_plot: List[List[str]],
-                                 plot_title: str, save_path: str = ''):
+                                 plot_types: List[str], plot_title: str, save_path: str = ''):
         plt.figure(figsize=self.figsize)
         plt.title(plot_title)
 
-        for curr_df, df_cols in zip(list_of_dfs, cols_to_plot):
+        for curr_df, df_cols, plt_type in zip(list_of_dfs, cols_to_plot, plot_types):
             for y_col in df_cols:
-                plt.plot(curr_df['x'], curr_df[y_col], label=y_col.title())
+                plot_func = getattr(plt, plt_type)
+                plot_func(curr_df['x'], curr_df[y_col], label=y_col.title())
 
         plt.legend()
         # plt.xlabel('X Values')
