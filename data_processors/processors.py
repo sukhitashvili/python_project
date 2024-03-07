@@ -53,7 +53,7 @@ class TrainCSVProcessor(CSVProcessor):
             plt.plot(self['x'], self[tr_col], label=f'Train {tr_col}')
             plt.plot(ideals_df['x'], ideals_df[self.train_cols_to_ideals[tr_col]],
                      label=f'Ideal {self.train_cols_to_ideals[tr_col]}')
-        # legend = plt.legend(prop={'size': 10})
+        legend = plt.legend(prop={'size': 8})
         plt.gca().spines['top'].set_visible(False)
         plt.gca().spines['right'].set_visible(False)
         self.save_or_show(save_path=save_path)
