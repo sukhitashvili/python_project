@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -153,32 +153,32 @@ class TestCSVProcessor(CSVProcessor):
         self.assigned_test_df = merged_ideals_test
         return self.assigned_test_df
 
-    def plot_with_assigned(self, plot_title: str, sort_by: str = 'x', save_path: str = ''):
-        sorted_df = self.assigned_test_df  # just call it sorted even if it will not be sorted
-        if sort_by:
-            sorted_df = self.assigned_test_df.sort_values(by=[sort_by])
-
+    def plot_with_assigned(self, plot_title: str, ideals_df: DataFrame, matched_ideals_column_names: List[str],
+                           save_path: str = '', figsize: tuple = (9, 5)):
         # plot test x,y
-        test_y = sorted_df['test'].values
-        x_values = sorted_df['x'].values
-        plt.figure(figsize=self.figsize)
+        test_y = self.assigned_test_df['test'].values
+        x_values = self.assigned_test_df['x'].values
+        plt.figure(figsize=figsize)
         plt.title(plot_title)
-        plt.plot(x_values, test_y, label='Test')
+        plt.scatter(x_values, test_y, label='Test')
 
-        #  now plot columns of ideals which were assigned after dropping nans and annotate scatter plot with col names
-        without_nans = sorted_df.dropna()
-        closes_ideals_names = without_nans['No. of ideal func'].values
-        closes_ideals_values = without_nans['closest_ideal_values'].values
-        x_values = without_nans['x'].values
+        # now plot columns of ideals which were assigned after dropping nans and annotate scatter plot with col names
+        closes_ideals_names = self.assigned_test_df['No. of ideal func'].values
 
-        # plot and annotate
-        plt.scatter(x_values, closes_ideals_values, label='Closes ideals', color='red')
+        # plot ideals and to overlay test x,y pairs
+        for col_name in matched_ideals_column_names:
+            plt.plot(ideals_df['x'], ideals_df[col_name], label=col_name)
+
         # annotate ideals with column names
-        for i, (txt, x, y) in enumerate(zip(closes_ideals_names, x_values, closes_ideals_values)):
+        for i, (txt, x) in enumerate(zip(closes_ideals_names, x_values)):
             # tweak x,y coords of the text so that title of nearby points will not overlap
-            y = y + 3 if (i % 2 == 0) else y - 3
+            y = self.assigned_test_df.iloc[i, :]['test']
+            y = y + 1 if (i % 2 == 0) else y - 1
             x = x + 0.2 if (i % 2 == 0) else x - 0.2
-            plt.annotate(txt, (x, y), size=9)
+            if txt == '-':
+                plt.annotate('No class', (x, y), size=5, color='red')
+                continue
+            plt.annotate(txt, (x, y), size=7, color='black')
 
         legend = plt.legend(prop={'size': 10})
         # plt.xlabel('X Values')
