@@ -162,7 +162,7 @@ class TestCSVProcessor(CSVProcessor):
         plt.title(plot_title)
         plt.scatter(x_values, test_y, label='Test')
 
-        # now plot columns of ideals which were assigned after dropping nans and annotate scatter plot with col names
+        # plot columns of ideals which were assigned after dropping and annotate scatter plot with col names
         closes_ideals_names = self.assigned_test_df['No. of ideal func'].values
 
         # plot ideals and to overlay test x,y pairs
