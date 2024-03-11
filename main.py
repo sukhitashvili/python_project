@@ -25,11 +25,11 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     train_processor.plot_raw_data(plot_title='Train CSV', save_path='images/train_csv.jpg')
     ideals_processor.plot_raw_data(plot_title='Subset of Ideals CSV',
                                    save_path='images/ideals_csv.jpg', cols_to_plot=['y10', 'y14', 'y15', 'y42'])
-    test_processor.plot_raw_data(plot_title='', save_path='images/test_csv.jpg', plot_type='scatter')
+    test_processor.plot_raw_data(plot_title='Test CSV Data', save_path='images/test_csv.jpg', plot_type='scatter')
 
     # overlay test csv on train plot
     train_processor.plot_multiple_dataframes(list_of_dfs=[train_processor.data,
-                                                          test_processor.data.sort_values(by=['x'])],
+                                                          test_processor.data],
                                              cols_to_plot=[train_processor.y_cols, test_processor.y_cols],
                                              plot_types=['plot', 'scatter'],
                                              plot_title='Test csv over train csv',
@@ -48,8 +48,11 @@ def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
     logger.info("Matching ideals with test x,y pairs...")
     test_processor.assign_to_ideals(train_processor=train_processor, ideals_processor=ideals_processor)
     # Plot test set and estimated closest ideals
-    test_processor.plot_with_assigned(plot_title="Graph of values from Test CSV and closes ideals", sort_by='x',
-                                      save_path='images/test_assigned.jpg')
+    test_processor.plot_with_assigned(plot_title="Graph of values from Test CSV and closes ideals",
+                                      ideals_df=ideals_processor.data,
+                                      matched_ideals_column_names=train_processor.train_cols_to_ideals.values(),
+                                      save_path='images/test_assigned.jpg',
+                                      figsize=(13, 8))
     logger.info("Finished matching with test")
 
     # Now save the tables into a sqlite db
