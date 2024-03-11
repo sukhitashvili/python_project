@@ -176,9 +176,9 @@ class TestCSVProcessor(CSVProcessor):
             y = y + 1 if (i % 2 == 0) else y - 1
             x = x + 0.2 if (i % 2 == 0) else x - 0.2
             if txt == '-':
-                plt.annotate('No class', (x, y), size=5, color='red')
+                plt.annotate('No class', (x, y), size=8, color='red')
                 continue
-            plt.annotate(txt, (x, y), size=7, color='black')
+            plt.annotate(txt.title(), (x, y), size=11, color='black')
 
         legend = plt.legend(prop={'size': 10})
         # plt.xlabel('X Values')
