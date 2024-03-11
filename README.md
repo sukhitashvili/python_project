@@ -2,8 +2,9 @@
 
 ### How to run
 
-To run the code first install requirements.txt via command:
+To run the code locally you need to clone the repository and install ``requirements.txt`` via commands:
 ```bash
+git clone https://github.com/sukhitashvili/python_project.git
 pip install -r requirements.txt
 ```
 After this you can run python code via:
