@@ -13,6 +13,14 @@ logger.addHandler(logging.StreamHandler())
 
 
 def main(train_csv_path: str, ideals_csv_path: str, test_csv_path: str):
+    """
+    Runs all the class methods of CSV processors to accomplish the coding assignment task.
+
+    Args:
+        train_csv_path: path to the csv file containing the training data
+        ideals_csv_path: path to the csv file containing the ideal data
+        test_csv_path: path to the csv file containing the test data
+    """
     # init processor classes which does csv reading during initialization
     logger.info("Loading data...")
     train_processor = TrainCSVProcessor(csv_path=train_csv_path)
